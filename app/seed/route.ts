@@ -4,6 +4,15 @@ import { invoices, customers, revenue, users } from '../lib/placeholder-data';
 
 const sql = postgres(process.env.POSTGRES_URL!, { ssl: 'require' });
 
+// async function cleanDatabase() {
+//   await sql`DROP SCHEMA public CASCADE`;
+//   await sql`CREATE SCHEMA public`;
+//   await sql`DROP TABLE IF EXISTS invoices`;
+//   await sql`DROP TABLE IF EXISTS customers`;
+//   await sql`DROP TABLE IF EXISTS revenue`;
+//   await sql`DROP TABLE IF EXISTS users`;
+// }
+
 async function seedUsers() {
   await sql`CREATE EXTENSION IF NOT EXISTS "uuid-ossp"`;
   await sql`
@@ -104,6 +113,7 @@ async function seedRevenue() {
 export async function GET() {
   try {
     const result = await sql.begin((sql) => [
+      // cleanDatabase(),
       seedUsers(),
       seedCustomers(),
       seedInvoices(),
