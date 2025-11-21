@@ -1,6 +1,8 @@
 "use server";
 
+import { signIn } from "@/auth";
 import { stat } from "fs";
+import { AuthError } from "next-auth";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import postgres from "postgres";
@@ -110,4 +112,27 @@ export async function deleteInvoice(id: string) {
     DELETE FROM invoices WHERE id = ${id};
   `;
   revalidatePath("/dashboard/invoices");
+}
+
+export async function authenticate(
+  prevState: { message: string } | undefined,
+  formData: FormData
+) {
+  try {
+    await signIn("credentials", formData);
+  } catch (error) {
+    if (error instanceof AuthError) {
+      switch (error.type) {
+        case "CredentialsSignin":
+          return {
+            message: "Invalid email or password. Please try again.",
+          };
+        default:
+          return {
+            message: "An unknown error occurred during sign-in.",
+          };
+      }
+    }
+    throw error;
+  }
 }
